@@ -118,30 +118,28 @@ jobs:
         run: ./scripts/ci/configure-mobile-http.sh enable android || true
 
       - name: Setup Android signing
-        if: matrix.mobile == 'android'
         shell: bash
         run: |
-            cd src-tauri/crates/tauritavern/gen/android
-            keystore_path="$RUNNER_TEMP/keystore.jks"
+          cd src-tauri/crates/tauritavern/gen/android
+          keystore_path="$RUNNER_TEMP/keystore.jks"
 
-            if [ -n "${{ secrets.ANDROID_KEY_BASE64 }}" ]; then
-              echo "Uso de secrets do repositório..."
-              echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" > keystore.properties
-              echo "password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
-              base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > "$keystore_path"
-              echo "storeFile=$keystore_path" >> keystore.properties
-            else
-              echo "Secrets não encontradas no fork. Gerando keystore temporária para compilação..."
-              keytool -genkeypair -v -keystore "$keystore_path" \
-                -keyalg RSA -keysize 2048 -validity 10000 \
-                -alias temp-key -storepass 123456 -keypass 123456 \
-                -dname "CN=TauriTavern, O=Test, C=US"
-          
-              echo "keyAlias=temp-key" > keystore.properties
-              echo "password=123456" >> keystore.properties
-              echo "storeFile=$keystore_path" >> keystore.properties
-            fi
+          if [ -n "${{ secrets.ANDROID_KEY_BASE64 }}" ]; then
+            echo "Uso de secrets do repositório..."
+            echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" > keystore.properties
+            echo "password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
+            base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > "$keystore_path"
+            echo "storeFile=$keystore_path" >> keystore.properties
+          else
+            echo "Secrets não encontradas no fork. Gerando keystore temporária para compilação..."
+            keytool -genkeypair -v -keystore "$keystore_path" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -alias temp-key -storepass 123456 -keypass 123456 \
+              -dname "CN=TauriTavern, O=Test, C=US"
 
+            echo "keyAlias=temp-key" > keystore.properties
+            echo "password=123456" >> keystore.properties
+            echo "storeFile=$keystore_path" >> keystore.properties
+          fi
 
       - name: Build mobile bundle (aarch64 ARMv8.2-A)
         uses: tauri-apps/tauri-action@v1
