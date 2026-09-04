@@ -13,19 +13,48 @@ function isRequestLike(value) {
 }
 
 function isFormDataLike(value) {
-    return getTypeTag(value) === '[object FormData]';
+    return (
+        getTypeTag(value) === '[object FormData]' ||
+        (!!value &&
+            typeof value === 'object' &&
+            typeof value.append === 'function' &&
+            typeof value.get === 'function' &&
+            typeof value.entries === 'function')
+    );
 }
 
 function isUrlSearchParamsLike(value) {
-    return getTypeTag(value) === '[object URLSearchParams]';
+    return (
+        getTypeTag(value) === '[object URLSearchParams]' ||
+        (!!value &&
+            typeof value === 'object' &&
+            typeof value.append === 'function' &&
+            typeof value.get === 'function' &&
+            typeof value.entries === 'function' &&
+            !isFormDataLike(value))
+    );
 }
 
 function isBlobLike(value) {
-    return getTypeTag(value) === '[object Blob]';
+    return (
+        getTypeTag(value) === '[object Blob]' ||
+        getTypeTag(value) === '[object File]' ||
+        (!!value &&
+            typeof value === 'object' &&
+            typeof value.arrayBuffer === 'function' &&
+            typeof value.slice === 'function')
+    );
 }
 
 function isArrayBufferLike(value) {
-    return getTypeTag(value) === '[object ArrayBuffer]';
+    return (
+        getTypeTag(value) === '[object ArrayBuffer]' ||
+        (!!value &&
+            typeof value === 'object' &&
+            typeof value.byteLength === 'number' &&
+            typeof value.slice === 'function' &&
+            !isBlobLike(value))
+    );
 }
 
 function resolveBaseUrl(baseUrl) {
